@@ -7,7 +7,7 @@ from chromadb.utils import embedding_functions
 from model_configurations import get_model_configuration
 
 #must comment rich when upload to homework
-#from rich import print as pprint
+from rich import print as pprint
 
 gpt_emb_version = 'text-embedding-ada-002'
 gpt_emb_config = get_model_configuration(gpt_emb_version)
@@ -32,7 +32,7 @@ def generate_hw01():
     with open('COA_OpenData.csv', encoding="utf-8") as csvfile:
         reader = csv.DictReader(csvfile)
         for index, row in enumerate(reader):
-            print({index}, row["Name"])
+#            print({index}, row["Name"])
             collection.add(
                 ids=[f"id{index}"],
                 documents=[
@@ -47,6 +47,25 @@ def generate_hw01():
     pass
     
 def generate_hw02(question, city, store_type, start_date, end_date):
+    chroma_client = chromadb.PersistentClient(path=dbpath)
+    openai_ef = embedding_functions.OpenAIEmbeddingFunction(
+        api_key = gpt_emb_config['api_key'],
+        api_base = gpt_emb_config['api_base'],
+        api_type = gpt_emb_config['openai_type'],
+        api_version = gpt_emb_config['api_version'],
+        deployment_id = gpt_emb_config['deployment_name']
+    )
+    collection = chroma_client.get_or_create_collection(
+        name="TRAVEL",
+        metadata={"hnsw:space": "cosine"},
+        embedding_function=openai_ef
+    )
+    results = collection.query(
+        query_texts=["我想要找有關茶餐點的店家"],
+        n_results=10,
+        where={"city": "宜蘭縣"}
+    )
+)   return results
     pass
     
 def generate_hw03(question, store_name, new_store_name, city, store_type):
@@ -69,4 +88,4 @@ def demo(question):
     return collection
     pass
 
-#pprint(generate_hw01())
+pprint(generate_hw02("question", "city", "store_type", "start_date", "end_date"))
