@@ -92,14 +92,11 @@ def generate_hw01():
 #            create_date = int(datetime.strptime(row["CreateDate"], "%Y-%m-%d").timestamp())
 #            create_date = convert_to_timestamp(row["CreateDate"])
             create_date = int(datetime.datetime.strptime(row['CreateDate'], '%Y-%m-%d').timestamp())
+            metas = {"file_name": "COA_OpenData.csv", "name": row["Name"], "type": row["Type"], "address": row["Address"], "tel": row["Tel"], "city": row["City"], "town": row["Town"], "date": int(datetime.datetime.strptime(row['CreateDate'], '%Y-%m-%d').timestamp())}
             collection.add(
                 ids=[str(index)],
-                documents=[
-                    row["HostWords"]
-                ],
-                metadatas=[
-                    {"file_name": "COA_OpenData.csv", "name": row["Name"], "type": row["Type"], "address": row["Address"], "tel": row["Tel"], "city": row["City"], "town": row["Town"], "date": int(datetime.datetime.strptime(row['CreateDate'], '%Y-%m-%d').timestamp())}
-                ]
+                metadatas=[metas],
+                documents=[row["HostWords"]]
             )
 
     return collection
