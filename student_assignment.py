@@ -7,7 +7,7 @@ from chromadb.utils import embedding_functions
 from model_configurations import get_model_configuration
 
 #must comment rich when upload to homework
-from rich import print as pprint
+#from rich import print as pprint
 
 gpt_emb_version = 'text-embedding-ada-002'
 gpt_emb_config = get_model_configuration(gpt_emb_version)
@@ -15,6 +15,7 @@ gpt_emb_config = get_model_configuration(gpt_emb_version)
 dbpath = "./"
 
 import csv
+from datetime import datetime
 def generate_hw01():
     chroma_client = chromadb.PersistentClient(path=dbpath)
     openai_ef = embedding_functions.OpenAIEmbeddingFunction(
@@ -33,13 +34,14 @@ def generate_hw01():
         reader = csv.DictReader(csvfile)
         for index, row in enumerate(reader):
 #            print({index}, row["Name"])
+            create_date = datetime.strptime(row["CreateDate"], "%Y-%m-%d").timestamp()
             collection.add(
                 ids=[f"id{index}"],
                 documents=[
                     row["HostWords"]
                 ],
                 metadatas=[
-                    {"file_name": "COA_OpenData.csv", "name": row["Name"], "type": row["Type"], "address": row["Address"], "tel": row["Tel"], "city": row["City"], "town": row["Town"], "date": row["CreateDate"]},
+                    {"file_name": "COA_OpenData.csv", "name": row["Name"], "type": row["Type"], "address": row["Address"], "tel": row["Tel"], "city": row["City"], "town": row["Town"], "date": create_date},
                 ]
             )
 
@@ -65,7 +67,7 @@ def generate_hw02(question, city, store_type, start_date, end_date):
         n_results=10,
         where={"city": "宜蘭縣"}
     )
-)   return results
+    return results
     pass
     
 def generate_hw03(question, store_name, new_store_name, city, store_type):
@@ -88,4 +90,5 @@ def demo(question):
     return collection
     pass
 
-pprint(generate_hw02("question", "city", "store_type", "start_date", "end_date"))
+generate_hw01()
+#pprint(generate_hw02("question", "city", "store_type", "start_date", "end_date"))
