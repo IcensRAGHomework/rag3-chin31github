@@ -64,7 +64,8 @@ def generate_hw08():
             )
     return collection
     pass
-    
+
+#123    
 def generate_hw01():
     chroma_client = chromadb.PersistentClient(path=dbpath)
     openai_ef = embedding_functions.OpenAIEmbeddingFunction(
