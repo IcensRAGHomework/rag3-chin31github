@@ -88,12 +88,12 @@ def generate_hw01():
     with open('COA_OpenData.csv', encoding="utf-8") as csvfile:
         reader = csv.DictReader(csvfile)
         for index, row in enumerate(reader):
-#            print({index}, row["Name"])
+            print(str(index), row["Name"])
 #            create_date = int(datetime.strptime(row["CreateDate"], "%Y-%m-%d").timestamp())
 #            create_date = convert_to_timestamp(row["CreateDate"])
             create_date = int(datetime.datetime.strptime(row['CreateDate'], '%Y-%m-%d').timestamp())
             collection.add(
-                ids=[f"{index}"],
+                ids=[str(index)],
                 documents=[
                     row["HostWords"]
                 ],
