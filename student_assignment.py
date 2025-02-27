@@ -50,7 +50,7 @@ def generate_hw01():
                     row["HostWords"]
                 ],
                 metadatas=[
-                    {"file_name": "COA_OpenData.csv", "name": row["Name"], "type": row["Type"], "address": row["Address"], "tel": row["Tel"], "city": row["City"], "town": row["Town"], "date": create_date},
+                    {"file_name": "COA_OpenData.csv", "name": row["Name"], "type": row["Type"], "address": row["Address"], "tel": row["Tel"], "city": row["City"], "town": row["Town"], "date": int(datetime.datetime.strptime(row['CreateDate'], '%Y-%m-%d').timestamp())},
                 ]
             )
 
