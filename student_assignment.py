@@ -19,7 +19,7 @@ import datetime
 import time
 import pandas as pd
 
-def generate_hw01():
+def generate_hw08():
     # 連接地端的database
     chroma_client = chromadb.PersistentClient(path=dbpath)
     # 建立embedding function
@@ -65,7 +65,7 @@ def generate_hw01():
     return collection
     pass
     
-def generate_hw08():
+def generate_hw01():
     chroma_client = chromadb.PersistentClient(path=dbpath)
     openai_ef = embedding_functions.OpenAIEmbeddingFunction(
         api_key = gpt_emb_config['api_key'],
@@ -98,7 +98,7 @@ def generate_hw08():
                     row["HostWords"]
                 ],
                 metadatas=[
-                    {"file_name": "COA_OpenData.csv", "name": row["Name"], "type": row["Type"], "address": row["Address"], "tel": row["Tel"], "city": row["City"], "town": row["Town"], "date": int(datetime.datetime.strptime(row['CreateDate'], '%Y-%m-%d').timestamp())},
+                    {"file_name": "COA_OpenData.csv", "name": row["Name"], "type": row["Type"], "address": row["Address"], "tel": row["Tel"], "city": row["City"], "town": row["Town"], "date": int(datetime.datetime.strptime(row['CreateDate'], '%Y-%m-%d').timestamp())}
                 ]
             )
 
