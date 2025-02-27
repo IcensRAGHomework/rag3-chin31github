@@ -41,8 +41,8 @@ def generate_hw01():
         reader = csv.DictReader(csvfile)
         for index, row in enumerate(reader):
 #            print({index}, row["Name"])
-            create_date = int(datetime.strptime(row["CreateDate"], "%Y-%m-%d").timestamp())
-#            create_date = convert_to_timestamp(row["CreateDate"])
+#            create_date = int(datetime.strptime(row["CreateDate"], "%Y-%m-%d").timestamp())
+            create_date = convert_to_timestamp(row["CreateDate"])
             collection.add(
                 ids=[f"{index}"],
                 documents=[
