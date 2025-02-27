@@ -16,6 +16,7 @@ dbpath = "./"
 
 import csv
 from datetime import datetime
+import time
 def generate_hw01():
     chroma_client = chromadb.PersistentClient(path=dbpath)
     openai_ef = embedding_functions.OpenAIEmbeddingFunction(
@@ -30,11 +31,18 @@ def generate_hw01():
         metadata={"hnsw:space": "cosine"},
         embedding_function=openai_ef
     )
+    def convert_to_timestamp(date_str):
+        try:
+            dt = datetime.strptime(date_str, "%Y-%m-%d")
+            return int(time.mktime(dt.timetuple()))
+        except ValueError:
+            return None
     with open('COA_OpenData.csv', encoding="utf-8") as csvfile:
         reader = csv.DictReader(csvfile)
         for index, row in enumerate(reader):
 #            print({index}, row["Name"])
-            create_date = datetime.strptime(row["CreateDate"], "%Y-%m-%d").timestamp()
+#            create_date = datetime.strptime(row["CreateDate"], "%Y-%m-%d").timestamp()
+            create_date = convert_to_timestamp(row["CreateDate"])
             collection.add(
                 ids=[f"id{index}"],
                 documents=[
