@@ -44,7 +44,7 @@ def generate_hw01():
             create_date = int(datetime.strptime(row["CreateDate"], "%Y-%m-%d").timestamp())
 #            create_date = convert_to_timestamp(row["CreateDate"])
             collection.add(
-                ids=[f"id{index}"],
+                ids=[f"{index}"],
                 documents=[
                     row["HostWords"]
                 ],
