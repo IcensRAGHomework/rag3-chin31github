@@ -15,7 +15,7 @@ gpt_emb_config = get_model_configuration(gpt_emb_version)
 dbpath = "./"
 
 import csv
-from datetime import datetime
+import datetime
 import time
 def generate_hw01():
     chroma_client = chromadb.PersistentClient(path=dbpath)
@@ -42,7 +42,8 @@ def generate_hw01():
         for index, row in enumerate(reader):
 #            print({index}, row["Name"])
 #            create_date = int(datetime.strptime(row["CreateDate"], "%Y-%m-%d").timestamp())
-            create_date = convert_to_timestamp(row["CreateDate"])
+#            create_date = convert_to_timestamp(row["CreateDate"])
+            create_date = int(datetime.datetime.strptime(row['CreateDate'], '%Y-%m-%d').timestamp())
             collection.add(
                 ids=[f"{index}"],
                 documents=[
