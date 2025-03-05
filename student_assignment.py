@@ -86,46 +86,63 @@ def generate_hw01():
             return int(time.mktime(dt.timetuple()))
         except ValueError:
             return None
-#    if collection.count() == 0:
-#        csvfilename = "COA_OpenData.csv"
-#        with open(csvfilename, encoding="utf-8") as csvfile:
-#            reader = csv.DictReader(csvfile)
-#            for index, row in enumerate(reader):
-#                print(str(index), row["Name"])
-##                create_date = int(datetime.strptime(row["CreateDate"], "%Y-%m-%d").timestamp())
-##                create_date = convert_to_timestamp(row["CreateDate"])
-#                create_date = int(datetime.datetime.strptime(row['CreateDate'], '%Y-%m-%d').timestamp())
-#                metas = {"file_name": csvfilename, "name": row["Name"], "type": row["Type"], "address": row["Address"], "tel": row["Tel"], "city": row["City"], "town": row["Town"], "date": int(datetime.datetime.strptime(row['CreateDate'], '%Y-%m-%d').timestamp())}
-##                print(str(index)+str(metas))
-#                collection.add(
-#                    ids=[str(index)],
-#                    metadatas=[metas],
-#                    documents=[row["HostWords"]]
-#                )
+    if collection.count() == 0:
+        csvfilename = "COA_OpenData.csv"
+        with open(csvfilename, encoding="utf-8") as csvfile:
+            reader = csv.DictReader(csvfile)
+            for index, row in enumerate(reader):
+                print(str(index), row["Name"])
+#                create_date = convert_to_timestamp(row["CreateDate"])
+                create_date = int(datetime.datetime.strptime(row['CreateDate'], '%Y-%m-%d').timestamp())
+                metas = {"file_name": csvfilename, "name": row["Name"], "type": row["Type"], "address": row["Address"], "tel": row["Tel"], "city": row["City"], "town": row["Town"], "date": create_date}
+#                print(str(index)+str(metas))
+                collection.add(
+                    ids=[str(index)],
+                    metadatas=[metas],
+                    documents=[row["HostWords"]]
+                )
 
     return collection
     pass
     
 def generate_hw02(question, city, store_type, start_date, end_date):
-    chroma_client = chromadb.PersistentClient(path=dbpath)
-    openai_ef = embedding_functions.OpenAIEmbeddingFunction(
-        api_key = gpt_emb_config['api_key'],
-        api_base = gpt_emb_config['api_base'],
-        api_type = gpt_emb_config['openai_type'],
-        api_version = gpt_emb_config['api_version'],
-        deployment_id = gpt_emb_config['deployment_name']
+    print(
+        "question = " + str(question) + ",\n"
+        "city = " + str(city) + ",\n"
+        "store_type = " + str(store_type) + ",\n"
+        "start_date = " + str(start_date) + ",\n"
+        "end_date = " + str(end_date)
     )
-    collection = chroma_client.get_or_create_collection(
-        name="TRAVEL",
-        metadata={"hnsw:space": "cosine"},
-        embedding_function=openai_ef
-    )
+
+    collection = generate_hw01()
+    
+    # query data from db collection
     results = collection.query(
-        query_texts=["我想要找有關茶餐點的店家"],
+        query_texts=[question],
         n_results=10,
-        where={"city": "宜蘭縣"}
+        include=["metadatas", "distances"],
+        where={
+            "$and": [
+                {"date": {"$gte": int(start_date.timestamp())}}, # greater than or equal
+                {"date": {"$lte": int(end_date.timestamp())}}, # less than or equal
+                {"type": {"$in": store_type}},
+                {"city": {"$in": city}}
+            ]
+        }
     )
-    return results
+#    print(results)
+    filter_distance = []
+    filter_name = []
+    for index in range(len(results['ids'])):
+        for distance, metadata in zip(results['distances'][index], results['metadatas'][index]):
+            similar = 1 - distance
+            if similar >= 0.8:
+                filter_distance.append(similar)
+                filter_name.append(metadata['name'])
+    if (len(filter_name) > 0):
+        results = sorted(zip(filter_distance, filter_name), key=lambda x:x[0], reverse=True)
+        store_name = [name for _, name in results]
+        return store_name
     pass
     
 def generate_hw03(question, store_name, new_store_name, city, store_type):
@@ -148,5 +165,5 @@ def demo(question):
     return collection
     pass
 
-generate_hw01()
+print(generate_hw02("我想要找有關茶餐點的店家", ["宜蘭縣", "新北市"], ["美食"], datetime.datetime(2024, 4, 1), datetime.datetime(2024, 5, 1)))
 #pprint(generate_hw02("question", "city", "store_type", "start_date", "end_date"))
