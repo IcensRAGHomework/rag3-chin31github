@@ -146,6 +146,41 @@ def generate_hw02(question, city, store_type, start_date, end_date):
     pass
     
 def generate_hw03(question, store_name, new_store_name, city, store_type):
+    collection = generate_hw01()
+    old_store = collection.get(where={"name": store_name})
+    print(old_store)
+#    print(type(old_store))
+#    update_meta = [{**meta, "new_store_name":new_store_name} for meta in old_store.get("metadatas", [])]
+#    print(update_meta)
+    # Update資料
+    collection.update(
+        ids=[old_store["ids"][0]],
+        metadatas=[{"new_store_name":new_store_name}]
+    )
+    results = collection.query(
+        query_texts=question,
+        n_results=10,
+        include=["metadatas", "distances"],
+        where={
+            "$and":[
+                {"city": {"$in": city}},
+                {"type": {"$in": store_type}}
+            ]
+        }
+    )
+    filter_name=[]
+    filter_distance=[]
+    for index in range(len(results["ids"])):
+        for distance, metadata in zip(results['distances'][index], results['metadatas'][index]):
+            similar = 1 - distance
+            if similar >= 0.8:
+                filter_distance.append(similar)
+                new_store_name=metadata.get('new_store_name', "")
+                name = metadata['name']
+                filter_name.append(new_store_name if new_store_name else name)
+    results = sorted(zip(filter_distance, filter_name), key=lambda x: x[0], reverse=True)
+    store_name = [name for _, name in results] 
+    return store_name
     pass
     
 def demo(question):
@@ -165,5 +200,5 @@ def demo(question):
     return collection
     pass
 
-print(generate_hw02("我想要找有關茶餐點的店家", ["宜蘭縣", "新北市"], ["美食"], datetime.datetime(2024, 4, 1), datetime.datetime(2024, 5, 1)))
-#pprint(generate_hw02("question", "city", "store_type", "start_date", "end_date"))
+#print(generate_hw02("我想要找有關茶餐點的店家", ["宜蘭縣", "新北市"], ["美食"], datetime.datetime(2024, 4, 1), datetime.datetime(2024, 5, 1)))
+print(generate_hw03("我想要找南投縣的田媽媽餐廳，招牌是蕎麥麵", "耄饕客棧", "田媽媽（耄饕客棧）", ["南投縣"], ["美食"]))
